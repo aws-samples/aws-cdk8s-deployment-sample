@@ -1,0 +1,10 @@
+.env
+Pipfile.lock
+dist/
+imports/
+.DS_Store
+__pycache__
+.pytest_cache
+*.egg-info
+.coverage
+requirements.txt

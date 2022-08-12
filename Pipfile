@@ -1,0 +1,22 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[requires]
+python_version = "3.9"
+
+[packages]
+constructs = "~=10.1.44"
+cdk8s = "~=2.3.53"
+cdk8s-plus-22 = "~=2.0.0.rc50"
+pylint = "~=2.14.5"
+pytest = "~=7.1.2"
+coverage = "*"
+safety = "*"
+
+[pipenv]
+allow_prereleases = true
+
+[dev-packages]
+autopep8 = "*"
