@@ -23,8 +23,10 @@ from cdk8s_plus_26 import (
 )
 
 class AppChart(Chart):
-    def __init__(self, scope: Construct, id: str, account: str, region: str, namespace: str):
+    def __init__(self, scope: Construct, id: str, namespace: str):
         super().__init__(scope, id)
+        
+        service_port = 8080
 
         self.deployment = Deployment(
             self,
@@ -36,13 +38,15 @@ class AppChart(Chart):
             select = True,
             containers = [
                  ContainerProps(
-                    image = "public.ecr.aws/nginx/nginx:1.24-alpine",
+                    #image = "public.ecr.aws/nginx/nginx:1.24-alpine",
+                    image = "paulbouwer/hello-kubernetes:1.5",
                     image_pull_policy = ImagePullPolicy.ALWAYS,
                     name = "nginx",
                     resources = ContainerResources(
                         cpu = CpuResources(request=Cpu.units(0.25),limit=Cpu.units(1))
                     ),
-                    port = 80
+                    port_number = service_port,
+                    security_context={"user": 1005},
                 )
             ]
         )
@@ -64,16 +68,26 @@ class AppChart(Chart):
 
         self.service = self.deployment.expose_via_service(
             name = "my-service",
-            ports = [
-                ServicePort(
-                    protocol = Protocol.TCP,
-                    target_port = 80,
-                    port = 80,
-                )
-            ],
+            #ports = [
+            #    ServicePort(
+            #        protocol = Protocol.TCP,
+            #        target_port = 8080,
+            #        port = 80,
+            #    )
+            #],
             service_type = ServiceType.NODE_PORT
         )
 
-        ingress = Ingress(self, "AppALBIngress")
+        ingress = Ingress(
+            self,
+            "AppALBIngress",
+            metadata = ApiObjectMetadata(
+                annotations = {
+                    # Create Target Group with ip targets
+                    "alb.ingress.kubernetes.io/target-type": "ip",
+                }
+            )
+        )
+        
         ingress.add_rule("/", IngressBackend.from_service(self.service))
 

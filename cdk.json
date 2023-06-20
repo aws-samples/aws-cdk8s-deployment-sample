@@ -36,6 +36,10 @@
       "aws",
       "aws-cn"
     ],
-    "appName": "cdk8s-samples"
+    "appName": "cdk8s-samples",
+    "adminRoles": [
+      "Admin"
+    ],
+    "adminUsers": []
   }
 }

@@ -42,8 +42,9 @@ class PipelineStack(Stack):
                 },
                 install_commands=[
                     "npm install -g aws-cdk",
-                    "python3 -m venv .venv",
-                    "source .venv/bin/activate",
+                    "python3 -m venv .env",
+                    "chmod +x .env/bin/activate",
+                    ". .env/bin/activate",
                     "pip3 install -r requirements.txt",
                     "pip3 install -r requirements-dev.txt"
                     ],

@@ -7,12 +7,13 @@ from aws_cdk.aws_eks import (
     KubernetesVersion,
     AlbScheme
 )
+from aws_cdk.aws_iam import Role, User
 from aws_cdk.lambda_layer_kubectl_v26 import KubectlV26Layer
 from cdk8s import App as Ck8sApp
 from .app_chart import AppChart
 
 class KubernetesClusterStack(Stack):
-    def __init__(self, scope: Construct, id: str, **kwargs):
+    def __init__(self, scope: Construct, id: str, admin_users: str, admin_roles: str, **kwargs):
         super().__init__(scope, id, **kwargs)
 
         #EKS Cluster
@@ -33,10 +34,24 @@ class KubernetesClusterStack(Stack):
             AppChart(
                 Ck8sApp(),
                 "AppChart",
-                account = self.account,
-                region = self.region,
                 namespace = "default"
             ),
             ingress_alb = True,
             ingress_alb_scheme = AlbScheme.INTERNET_FACING
         )
+
+        # Add IAM users to cluster
+        for username in admin_users:
+            arn = f'arn:aws:iam::{self.account}:user/{username}'
+            self.cluster.aws_auth.add_user_mapping(
+                user = User.from_user_arn(self, username, arn),
+                groups = [
+                    "system:masters"
+                ]
+            )
+        
+        # Add IAM roles to cluster
+        for role_name in admin_roles:
+            arn = f'arn:aws:iam::{self.account}:role/{role_name}'
+            role = Role.from_role_arn(self, f"{role_name}Role", arn, mutable=False)
+            self.cluster.aws_auth.add_masters_role(role)
