@@ -1,3 +1,4 @@
+from typing import Sequence
 from constructs import Construct
 from aws_cdk import Stack, CfnOutput
 from aws_cdk.aws_eks import (
@@ -13,7 +14,7 @@ from cdk8s import App as Ck8sApp
 from .app_chart import AppChart
 
 class KubernetesClusterStack(Stack):
-    def __init__(self, scope: Construct, id: str, admin_users: str, admin_roles: str, **kwargs):
+    def __init__(self, scope: Construct, id: str, admin_users: Sequence[str], admin_roles: Sequence[str], **kwargs):
         super().__init__(scope, id, **kwargs)
 
         # EKS Cluster

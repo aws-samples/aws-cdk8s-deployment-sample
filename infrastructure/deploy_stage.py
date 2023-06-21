@@ -13,5 +13,7 @@ class DeployStage(Stage):
              env = Environment(
                 account = self.account,
                 region = self.region
-            )
+            ),
+            admin_users = self.node.try_get_context("adminUsers"),
+            admin_roles = self.node.try_get_context("adminRoles")
         )
