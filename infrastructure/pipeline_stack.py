@@ -32,7 +32,7 @@ class PipelineStack(Stack):
             self,
             "Pipeline",
             pipeline_name = f"{app_name}-pipeline",
-            self_mutation = False,
+            self_mutation = True,
             synth = ShellStep(
                 "Synth",
                 input = source_stage,
