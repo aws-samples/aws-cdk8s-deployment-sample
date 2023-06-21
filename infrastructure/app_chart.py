@@ -19,15 +19,17 @@ from cdk8s_plus_26 import (
     IngressBackend,
     HorizontalPodAutoscaler,
     Metric,
-    MetricTarget
+    MetricTarget,
+    ContainerSecurityContextProps
 )
 
 class AppChart(Chart):
     def __init__(self, scope: Construct, id: str, namespace: str):
         super().__init__(scope, id)
         
-        service_port = 8080
+        service_target_port = 8080
 
+        # K8s deployment
         self.deployment = Deployment(
             self,
             "MyDeployment",
@@ -38,19 +40,20 @@ class AppChart(Chart):
             select = True,
             containers = [
                  ContainerProps(
-                    #image = "public.ecr.aws/nginx/nginx:1.24-alpine",
                     image = "paulbouwer/hello-kubernetes:1.5",
                     image_pull_policy = ImagePullPolicy.ALWAYS,
                     name = "nginx",
                     resources = ContainerResources(
                         cpu = CpuResources(request=Cpu.units(0.25),limit=Cpu.units(1))
                     ),
-                    port_number = service_port,
-                    security_context={"user": 1005},
+                    port_number = service_target_port,
+                    security_context = ContainerSecurityContextProps(
+                        user = 1005
+                    )
                 )
             ]
         )
-
+        #K8s HPA
         HorizontalPodAutoscaler(
             self,
             "HPA",
@@ -65,29 +68,28 @@ class AppChart(Chart):
                 Metric.resource_cpu(MetricTarget.average_utilization(70))
             ]
         )
-
+        # K8s Service
         self.service = self.deployment.expose_via_service(
             name = "my-service",
-            #ports = [
-            #    ServicePort(
-            #        protocol = Protocol.TCP,
-            #        target_port = 8080,
-            #        port = 80,
-            #    )
-            #],
+            ports = [
+                ServicePort(
+                    protocol = Protocol.TCP,
+                    target_port = service_target_port,
+                    port = 80,
+                )
+            ],
             service_type = ServiceType.NODE_PORT
         )
-
-        ingress = Ingress(
+        # K8s ingress
+        self.ingress = Ingress(
             self,
             "AppALBIngress",
             metadata = ApiObjectMetadata(
                 annotations = {
-                    # Create Target Group with ip targets
-                    "alb.ingress.kubernetes.io/target-type": "ip",
+                    # Create Target Group with ip targets to work with Fargate
+                    "alb.ingress.kubernetes.io/target-type": "ip"
                 }
             )
         )
-        
-        ingress.add_rule("/", IngressBackend.from_service(self.service))
-
+        # Route traffic to the service
+        self.ingress.add_rule("/", IngressBackend.from_service(self.service))

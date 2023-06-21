@@ -1,5 +1,5 @@
 from constructs import Construct
-from aws_cdk import Stack
+from aws_cdk import Stack, CfnOutput
 from aws_cdk.aws_eks import (
     FargateCluster,
     AlbControllerOptions,
@@ -16,11 +16,12 @@ class KubernetesClusterStack(Stack):
     def __init__(self, scope: Construct, id: str, admin_users: str, admin_roles: str, **kwargs):
         super().__init__(scope, id, **kwargs)
 
-        #EKS Cluster
+        # EKS Cluster
         self.cluster = FargateCluster(
             self,
             "EKSCluster",
             cluster_name = "cdk8s-samples",
+            # Install ALB Ingress Controller
             alb_controller = AlbControllerOptions(
                 version = AlbControllerVersion.V2_4_1
             ),
@@ -28,14 +29,17 @@ class KubernetesClusterStack(Stack):
             kubectl_layer = KubectlV26Layer(self, "Kubectl")
         )
 
-        #Cdk8s resources
+        # Cdk8s resources
+        app_chart = AppChart(
+            Ck8sApp(),
+            "AppChart",
+            namespace = "default"
+        )
+
         self.cluster.add_cdk8s_chart(
             "AppChart",
-            AppChart(
-                Ck8sApp(),
-                "AppChart",
-                namespace = "default"
-            ),
+            app_chart,
+            # Expose via internet-facing ALB
             ingress_alb = True,
             ingress_alb_scheme = AlbScheme.INTERNET_FACING
         )
@@ -55,3 +59,12 @@ class KubernetesClusterStack(Stack):
             arn = f'arn:aws:iam::{self.account}:role/{role_name}'
             role = Role.from_role_arn(self, f"{role_name}Role", arn, mutable=False)
             self.cluster.aws_auth.add_masters_role(role)
+
+        alb_dns = self.cluster.get_ingress_load_balancer_address(app_chart.ingress.name)
+
+        # Return ALB Public DNS in stack outputs
+        CfnOutput(
+            self,
+            "ApplicationEndpoint",
+            value=f"http://{alb_dns}"
+        )
