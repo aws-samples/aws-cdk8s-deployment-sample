@@ -16,7 +16,6 @@ from cdk8s_plus_26 import (
     Protocol,
     Ingress,
     IngressBackend,
-    IngressBackend,
     HorizontalPodAutoscaler,
     Metric,
     MetricTarget,
@@ -26,8 +25,8 @@ from cdk8s_plus_26 import (
 class AppChart(Chart):
     def __init__(self, scope: Construct, id: str, namespace: str):
         super().__init__(scope, id)
-        
-        service_target_port = 8080
+
+        self.service_target_port = 8080
 
         # K8s deployment
         self.deployment = Deployment(
@@ -46,7 +45,7 @@ class AppChart(Chart):
                     resources = ContainerResources(
                         cpu = CpuResources(request=Cpu.units(0.25),limit=Cpu.units(1))
                     ),
-                    port_number = service_target_port,
+                    port_number = self.service_target_port,
                     security_context = ContainerSecurityContextProps(
                         user = 1005
                     )
@@ -74,7 +73,7 @@ class AppChart(Chart):
             ports = [
                 ServicePort(
                     protocol = Protocol.TCP,
-                    target_port = service_target_port,
+                    target_port = self.service_target_port,
                     port = 80,
                 )
             ],
@@ -85,6 +84,7 @@ class AppChart(Chart):
             self,
             "AppALBIngress",
             metadata = ApiObjectMetadata(
+                name = "my-test-ingress",
                 annotations = {
                     # Create Target Group with ip targets to work with Fargate
                     "alb.ingress.kubernetes.io/target-type": "ip"

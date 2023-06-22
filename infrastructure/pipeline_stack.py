@@ -6,11 +6,11 @@ from aws_cdk.pipelines import (
     CodePipelineSource,
     ShellStep
 )
-from aws_cdk.aws_codebuild import (
-    BuildEnvironment,
-    LinuxBuildImage,
-    ComputeType
-)
+#from aws_cdk.aws_codebuild import (
+#    BuildEnvironment,
+#    LinuxBuildImage,
+#    ComputeType
+#)
 from .deploy_stage import DeployStage
 
 class PipelineStack(Stack):

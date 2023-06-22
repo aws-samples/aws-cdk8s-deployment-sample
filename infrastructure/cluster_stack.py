@@ -54,7 +54,7 @@ class KubernetesClusterStack(Stack):
                     "system:masters"
                 ]
             )
-        
+
         # Add IAM roles to cluster
         for role_name in admin_roles:
             arn = f'arn:aws:iam::{self.account}:role/{role_name}'
