@@ -100,6 +100,28 @@ class PipelineStack(Stack):
             )
         )
 
+        safety_step = CodeBuildStep(
+            "Safety",
+            input = source_stage,
+            build_environment = environment,
+            project_name = f"{app_name}-pipeline-safety",
+            install_commands = cdk_install_commands,
+            commands = [
+                "find requirements*.txt -execdir safety check -r {} \;"
+            ]
+        )
+
+        bandit_step = CodeBuildStep(
+            "Bandit",
+            input = source_stage,
+            build_environment = environment,
+            project_name = f"{app_name}-pipeline-bandit",
+            install_commands = cdk_install_commands,
+            commands = [
+                "bandit -r ."
+            ]
+        )
+
         pipeline.add_stage(
             DeployStage(
                 self,
@@ -107,6 +129,8 @@ class PipelineStack(Stack):
                 app_name = app_name
             ),
             pre = [
+                safety_step,
+                bandit_step,
                 pylint_step,
                 pytest_step
             ]
