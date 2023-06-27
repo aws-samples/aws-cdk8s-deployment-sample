@@ -122,6 +122,26 @@ class PipelineStack(Stack):
             ]
         )
 
+        git_leaks_step = CodeBuildStep(
+            "GitLeaks",
+            input = source_stage,
+            build_environment = environment,
+            project_name = f"{app_name}-pipeline-git-leaks",
+            install_commands = cdk_install_commands,
+            commands = [
+                "CURRENT_DIR=$(pwd)",
+                "CLONE_FOLDER=gitleaks",
+                "mkdir $CLONE_FOLDER",
+                "git clone --quiet https://github.com/gitleaks/gitleaks.git $CLONE_FOLDER",
+                "cd $CLONE_FOLDER",
+                "make build",
+                "chmod +x gitleaks",
+                "mv gitleaks /usr/local/bin/",
+                "cd $CURRENT_DIR && rm -rf $CLONE_FOLDER",
+                "gitleaks detect --source . -v"
+            ]
+        )
+
         pipeline.add_stage(
             DeployStage(
                 self,
@@ -131,6 +151,7 @@ class PipelineStack(Stack):
             pre = [
                 safety_step,
                 bandit_step,
+                git_leaks_step,
                 pylint_step,
                 pytest_step
             ]
