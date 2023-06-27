@@ -35,7 +35,8 @@ class PipelineStack(Stack):
 
         source_stage = CodePipelineSource.code_commit(
             repository,
-            "main"
+            "main",
+            code_build_clone_output = True
         )
 
         environment = BuildEnvironment(
