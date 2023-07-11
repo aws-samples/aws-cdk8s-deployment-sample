@@ -16,9 +16,6 @@ from cdk8s_plus_26 import (
     Protocol,
     Ingress,
     IngressBackend,
-    HorizontalPodAutoscaler,
-    Metric,
-    MetricTarget,
     ContainerSecurityContextProps
 )
 
@@ -52,21 +49,7 @@ class AppChart(Chart):
                 )
             ]
         )
-        #K8s HPA
-        HorizontalPodAutoscaler(
-            self,
-            "HPA",
-            target = self.deployment,
-            max_replicas = 5,
-            min_replicas = 2,
-            metadata = ApiObjectMetadata(
-                name = f"{self.deployment.name}-hpa",
-                namespace = namespace
-            ),
-            metrics = [
-                Metric.resource_cpu(MetricTarget.average_utilization(70))
-            ]
-        )
+
         # K8s Service
         self.service = self.deployment.expose_via_service(
             name = "my-service",

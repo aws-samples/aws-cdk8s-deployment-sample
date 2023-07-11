@@ -25,6 +25,7 @@ def test_deployment():
         "spec": {
             "minReadySeconds": 0,
             "progressDeadlineSeconds": 600,
+            "replicas": 2,
             "selector": {
                 "matchLabels": chart.deployment.match_labels
             },
@@ -87,6 +88,10 @@ def test_deployment():
             }
         }
     }
+    print("guacho1")
+    print(deployment_synth)
+    print("guacho2")
+    print(expected_deployment)
     assert deployment_synth == expected_deployment
 
 def test_service():
@@ -114,7 +119,7 @@ def test_service():
     assert service_synth == expected_service
 
 def test_ingress():
-    ingress_synth = synth[3]
+    ingress_synth = synth[2]
     expected_ingress = {
         "apiVersion": "networking.k8s.io/v1",
         "kind": "Ingress",
