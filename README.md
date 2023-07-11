@@ -2,6 +2,8 @@
 
 This is a sample repository of how to create an Amazon EKS cluster with a k8s deployment using python, AWS CDK and cdk8s. It also includes how to expose it as service and python security and quality checks.
 
+![Architecture Diagram](/assets/architercture_diagram.png)
+
 ## Pre-requisites
 * [Python](https://www.python.org/downloads/)
 * [AWS CDK Toolkit](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html#getting_started_install)
