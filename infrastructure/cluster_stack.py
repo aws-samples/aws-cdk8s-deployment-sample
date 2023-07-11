@@ -37,7 +37,7 @@ class KubernetesClusterStack(Stack):
             namespace = "default"
         )
 
-        self.cluster.add_cdk8s_chart(
+        added_chart = self.cluster.add_cdk8s_chart(
             "AppChart",
             app_chart,
             # Expose via internet-facing ALB
@@ -60,6 +60,10 @@ class KubernetesClusterStack(Stack):
             arn = f'arn:aws:iam::{self.account}:role/{role_name}'
             role = Role.from_role_arn(self, f"{role_name}Role", arn, mutable=False)
             self.cluster.aws_auth.add_masters_role(role)
+
+        # The deletion of `app_chart` is what instructs the controller to delete the ELB.
+        # So we need to make sure this happens before the controller is deleted.
+        added_chart.node.add_dependency(self.cluster.alb_controller)
 
         alb_dns = self.cluster.get_ingress_load_balancer_address(app_chart.ingress.name)
 
