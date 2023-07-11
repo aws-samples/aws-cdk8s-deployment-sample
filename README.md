@@ -183,7 +183,7 @@ In case you don't need AWS CDK in your region, you can delete the CDKToolkit sta
 ```
 aws cloudformation delete-stack --stack-name CDKToolkit --region $REGION
 ```
-## Contibuting
+## Contributing
 See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
 ## License
 
