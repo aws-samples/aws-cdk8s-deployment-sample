@@ -88,10 +88,7 @@ def test_deployment():
             }
         }
     }
-    print("guacho1")
-    print(deployment_synth)
-    print("guacho2")
-    print(expected_deployment)
+
     assert deployment_synth == expected_deployment
 
 def test_service():

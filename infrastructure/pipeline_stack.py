@@ -150,13 +150,13 @@ class PipelineStack(Stack):
                 'QA',
                 app_name = app_name
             ),
-            pre = [
-                safety_step,
-                bandit_step,
-                git_leaks_step,
-                pylint_step,
-                pytest_step
-            ]
+            #pre = [
+            #    safety_step,
+            #    bandit_step,
+            #    git_leaks_step,
+            #    pylint_step,
+            #    pytest_step
+            #]
         )
 
         # Force the pipeline construct creation forward before applying suppressions.

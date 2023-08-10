@@ -23,7 +23,6 @@ context_mock = {
 app = App(context=context_mock)
 app_name = app.node.try_get_context("appName")
 
-print(app.node.try_get_context("adminUsers"))
 
 stack = KubernetesClusterStack(
     app,
