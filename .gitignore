@@ -25,5 +25,6 @@ cdk.context.json
 # Coverage
 .coverage
 reports/
-*/*/miturno_lib_*/*
 .DS_Store
+.hypothesis
+htmlcov
