@@ -11,7 +11,7 @@ from aws_cdk.aws_eks import (
 from aws_cdk.aws_iam import Role, User
 from aws_cdk.lambda_layer_kubectl_v26 import KubectlV26Layer
 from cdk8s import App as Ck8sApp
-from .app_chart import AppChart
+#from .app_chart import AppChart
 
 class KubernetesClusterStack(Stack):
     def __init__(self, scope: Construct, id: str, admin_users: Sequence[str], admin_roles: Sequence[str], **kwargs):

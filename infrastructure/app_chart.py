@@ -4,7 +4,7 @@ from cdk8s import (
     Chart,
     ApiObjectMetadata
 )
-from cdk8s_plus_26 import (
+from cdk8s_plus_27 import (
     Deployment,
     ContainerProps,
     ImagePullPolicy,
