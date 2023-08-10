@@ -31,19 +31,19 @@ class KubernetesClusterStack(Stack):
         )
 
         # Cdk8s resources
-        app_chart = AppChart(
-            Ck8sApp(),
-            "AppChart",
-            namespace = "default"
-        )
+        #app_chart = AppChart(
+        #    Ck8sApp(),
+        #    "AppChart",
+        #    namespace = "default"
+        #)
 
-        added_chart = self.cluster.add_cdk8s_chart(
-            "AppChart",
-            app_chart,
-            # Expose via internet-facing ALB
-            ingress_alb = True,
-            ingress_alb_scheme = AlbScheme.INTERNET_FACING
-        )
+        #added_chart = self.cluster.add_cdk8s_chart(
+        #    "AppChart",
+        #    app_chart,
+        #    # Expose via internet-facing ALB
+        #    ingress_alb = True,
+        #    ingress_alb_scheme = AlbScheme.INTERNET_FACING
+        #)
 
         # Add IAM users to cluster
         for username in admin_users:
@@ -63,13 +63,13 @@ class KubernetesClusterStack(Stack):
 
         # The deletion of `app_chart` is what instructs the controller to delete the ELB.
         # So we need to make sure this happens before the controller is deleted.
-        added_chart.node.add_dependency(self.cluster.alb_controller)
+        #added_chart.node.add_dependency(self.cluster.alb_controller)
 
-        alb_dns = self.cluster.get_ingress_load_balancer_address(app_chart.ingress.name)
+        #alb_dns = self.cluster.get_ingress_load_balancer_address(app_chart.ingress.name)
 
         # Return ALB Public DNS in stack outputs
-        CfnOutput(
-            self,
-            "ApplicationEndpoint",
-            value=f"http://{alb_dns}"
-        )
+        #CfnOutput(
+        #    self,
+        #    "ApplicationEndpoint",
+        #    value=f"http://{alb_dns}"
+        #)
