@@ -1,0 +1,17 @@
+[run]
+omit =
+    app.py
+    .venv/*
+    __init__.py
+    .env/*
+    cdk.out/*
+    infrastructure/pipeline_stack.py
+    infrastructure/deploy_stage.py
+source =
+    .
+
+[report]
+include_namespace_packages = True
+fail_under = 90
+show_missing = True
+skip_empty = True

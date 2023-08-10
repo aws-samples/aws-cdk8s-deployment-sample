@@ -13,9 +13,11 @@ context_mock = {
     "account": ACCOUNT,
     "appName": APP_NAME,
     "adminRoles": [
-        "Admin"
+        "MockRole"
     ],
-    "adminUsers": []
+    "adminUsers": [
+        "MockUser"
+    ]
 }
 
 app = App(context=context_mock)
