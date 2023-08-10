@@ -45,43 +45,43 @@ class PipelineStack(Stack):
             compute_type = ComputeType.SMALL
         )
 
-        #pylint_step = CodeBuildStep(
-        #    "Linter",
-        #    input = source_stage,
-        #    build_environment = environment,
-        #    project_name = f"{app_name}-pipeline-linter",
-        #    install_commands = cdk_install_commands,
-        #    commands = [
-        #        "find . -name '*.py' ! -path './.env/*' ! -path './cdk.out/*' ! -path './node_modules/*' | xargs pylint"
-        #    ]
-        #)
-#
-        #pytest_step = CodeBuildStep(
-        #    "UnitTests",
-        #    input = source_stage,
-        #    build_environment = environment,
-        #    project_name = f"{app_name}-pipeline-unit-tests",
-        #    install_commands = cdk_install_commands,
-        #    commands = [
-        #        "coverage erase && python3 -m coverage run --branch -m pytest -v && coverage report",
-        #        "python3 -m coverage xml -i -o test-results/coverage.xml",
-        #        "python3 -m pytest --junitxml=test-results/results.xml"
-        #    ],
-        #    partial_build_spec = BuildSpec.from_object({
-        #        "reports": {
-        #            "unit_tests_reports": {
-        #                "files": "results.xml",
-        #                "base-directory": "test-results",
-        #                "file-format": "JUNITXML"
-        #            },
-        #            "coverage_reports": {
-        #                "files": "coverage.xml",
-        #                "base-directory": "test-results",
-        #                "file-format": "COBERTURAXML"
-        #            }
-        #        }
-        #    })
-        #)
+        pylint_step = CodeBuildStep(
+            "Linter",
+            input = source_stage,
+            build_environment = environment,
+            project_name = f"{app_name}-pipeline-linter",
+            install_commands = cdk_install_commands,
+            commands = [
+                "find . -name '*.py' ! -path './.env/*' ! -path './cdk.out/*' ! -path './node_modules/*' | xargs pylint"
+            ]
+        )
+
+        pytest_step = CodeBuildStep(
+            "UnitTests",
+            input = source_stage,
+            build_environment = environment,
+            project_name = f"{app_name}-pipeline-unit-tests",
+            install_commands = cdk_install_commands,
+            commands = [
+                "coverage erase && python3 -m coverage run --branch -m pytest -v && coverage report",
+                "python3 -m coverage xml -i -o test-results/coverage.xml",
+                "python3 -m pytest --junitxml=test-results/results.xml"
+            ],
+            partial_build_spec = BuildSpec.from_object({
+                "reports": {
+                    "unit_tests_reports": {
+                        "files": "results.xml",
+                        "base-directory": "test-results",
+                        "file-format": "JUNITXML"
+                    },
+                    "coverage_reports": {
+                        "files": "coverage.xml",
+                        "base-directory": "test-results",
+                        "file-format": "COBERTURAXML"
+                    }
+                }
+            })
+        )
 
         pipeline = CodePipeline(
             self,
@@ -102,47 +102,47 @@ class PipelineStack(Stack):
             )
         )
 
-        #safety_step = CodeBuildStep(
-        #    "Safety",
-        #    input = source_stage,
-        #    build_environment = environment,
-        #    project_name = f"{app_name}-pipeline-safety",
-        #    install_commands = cdk_install_commands,
-        #    commands = [
-        #        "find requirements*.txt -execdir safety check -r {} \;"
-        #    ]
-        #)
-#
-        #bandit_step = CodeBuildStep(
-        #    "Bandit",
-        #    input = source_stage,
-        #    build_environment = environment,
-        #    project_name = f"{app_name}-pipeline-bandit",
-        #    install_commands = cdk_install_commands,
-        #    commands = [
-        #        "bandit -r ."
-        #    ]
-        #)
-#
-        #git_leaks_step = CodeBuildStep(
-        #    "GitLeaks",
-        #    input = source_stage,
-        #    build_environment = environment,
-        #    project_name = f"{app_name}-pipeline-git-leaks",
-        #    install_commands = cdk_install_commands,
-        #    commands = [
-        #        "CURRENT_DIR=$(pwd)",
-        #        "CLONE_FOLDER=gitleaks",
-        #        "mkdir $CLONE_FOLDER",
-        #        "git clone --quiet https://github.com/gitleaks/gitleaks.git $CLONE_FOLDER",
-        #        "cd $CLONE_FOLDER",
-        #        "make build",
-        #        "chmod +x gitleaks",
-        #        "mv gitleaks /usr/local/bin/",
-        #        "cd $CURRENT_DIR && rm -rf $CLONE_FOLDER",
-        #        "gitleaks detect --source . -v"
-        #    ]
-        #)
+        safety_step = CodeBuildStep(
+            "Safety",
+            input = source_stage,
+            build_environment = environment,
+            project_name = f"{app_name}-pipeline-safety",
+            install_commands = cdk_install_commands,
+            commands = [
+                "find requirements*.txt -execdir safety check -r {} \;"
+            ]
+        )
+
+        bandit_step = CodeBuildStep(
+            "Bandit",
+            input = source_stage,
+            build_environment = environment,
+            project_name = f"{app_name}-pipeline-bandit",
+            install_commands = cdk_install_commands,
+            commands = [
+                "bandit -r ."
+            ]
+        )
+
+        git_leaks_step = CodeBuildStep(
+            "GitLeaks",
+            input = source_stage,
+            build_environment = environment,
+            project_name = f"{app_name}-pipeline-git-leaks",
+            install_commands = cdk_install_commands,
+            commands = [
+                "CURRENT_DIR=$(pwd)",
+                "CLONE_FOLDER=gitleaks",
+                "mkdir $CLONE_FOLDER",
+                "git clone --quiet https://github.com/gitleaks/gitleaks.git $CLONE_FOLDER",
+                "cd $CLONE_FOLDER",
+                "make build",
+                "chmod +x gitleaks",
+                "mv gitleaks /usr/local/bin/",
+                "cd $CURRENT_DIR && rm -rf $CLONE_FOLDER",
+                "gitleaks detect --source . -v"
+            ]
+        )
 
         pipeline.add_stage(
             DeployStage(
@@ -150,13 +150,13 @@ class PipelineStack(Stack):
                 'QA',
                 app_name = app_name
             ),
-            #pre = [
-            #    safety_step,
-            #    bandit_step,
-            #    git_leaks_step,
-            #    pylint_step,
-            #    pytest_step
-            #]
+            pre = [
+                safety_step,
+                bandit_step,
+                git_leaks_step,
+                pylint_step,
+                pytest_step
+            ]
         )
 
         # Force the pipeline construct creation forward before applying suppressions.
@@ -190,22 +190,22 @@ class PipelineStack(Stack):
             )
 
 
-        #NagSuppressions.add_resource_suppressions(
-        #    [
-        #        git_leaks_step.project,
-        #        bandit_step.project,
-        #        pytest_step.project,
-        #        pylint_step.project,
-        #        safety_step.project
-        #    ],
-        #    [
-        #        {
-        #            "id": "AwsSolutions-IAM5",
-        #            "reason": 'This is added automatically by CDK, I cannot controll it',
-        #            "applies_to": [
-        #                'Action::s3:*',
-        #            ],
-        #        },
-        #    ],
-        #    True
-        #)
+        NagSuppressions.add_resource_suppressions(
+            [
+                git_leaks_step.project,
+                bandit_step.project,
+                pytest_step.project,
+                pylint_step.project,
+                safety_step.project
+            ],
+            [
+                {
+                    "id": "AwsSolutions-IAM5",
+                    "reason": 'This is added automatically by CDK, I cannot controll it',
+                    "applies_to": [
+                        'Action::s3:*',
+                    ],
+                },
+            ],
+            True
+        )
