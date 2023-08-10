@@ -65,7 +65,7 @@ class KubernetesClusterStack(Stack):
         # So we need to make sure this happens before the controller is deleted.
         #added_chart.node.add_dependency(self.cluster.alb_controller)
 
-        alb_dns = self.cluster.get_ingress_load_balancer_address(app_chart.ingress.name)
+        #alb_dns = self.cluster.get_ingress_load_balancer_address(app_chart.ingress.name)
 
         # Return ALB Public DNS in stack outputs
         #CfnOutput(
