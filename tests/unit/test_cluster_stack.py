@@ -5,7 +5,7 @@ from infrastructure.cluster_stack import KubernetesClusterStack
 
 REGION = "us-east-1"
 ACCOUNT = str(random.randint(111111111111, 999999999999))
-K8S_VERSION = "1.26"
+K8S_VERSION = "1.27"
 APP_NAME = "cdk8s-samples"
 
 context_mock = {
