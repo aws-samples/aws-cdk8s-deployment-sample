@@ -9,7 +9,7 @@ from aws_cdk.aws_eks import (
     AlbScheme
 )
 from aws_cdk.aws_iam import Role, User
-from aws_cdk.lambda_layer_kubectl_v26 import KubectlV26Layer
+from aws_cdk.lambda_layer_kubectl_v27 import KubectlV27Layer
 from cdk8s import App as Ck8sApp
 from .app_chart import AppChart
 
@@ -26,8 +26,8 @@ class KubernetesClusterStack(Stack):
             alb_controller = AlbControllerOptions(
                 version = AlbControllerVersion.V2_5_1
             ),
-            version = KubernetesVersion.V1_26,
-            kubectl_layer = KubectlV26Layer(self, "Kubectl")
+            version = KubernetesVersion.V1_27,
+            kubectl_layer = KubectlV27Layer(self, "Kubectl")
         )
 
         # Cdk8s resources
