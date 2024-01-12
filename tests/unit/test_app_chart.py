@@ -4,11 +4,15 @@ from infrastructure.app_chart import AppChart
 app = cdk8s.Testing.app(yaml_output_type=cdk8s.YamlOutputType.FOLDER_PER_CHART_FILE_PER_RESOURCE)
 
 NAMESPACE = "default"
+LOGS_BUCKET = "mock-bucket"
+MOCK_ACM_ARN = "mock-arn"
 
 chart = AppChart(
     app,
     "cdk8s-test",
-    namespace = NAMESPACE
+    namespace = NAMESPACE,
+    alb_access_logs_bucket_name = LOGS_BUCKET,
+    certificate = MOCK_ACM_ARN
 )
 
 synth = cdk8s.Testing.synth(chart)
@@ -115,14 +119,66 @@ def test_service():
     }
     assert service_synth == expected_service
 
-def test_ingress():
+def test_ingress_https():
     ingress_synth = synth[2]
     expected_ingress = {
         "apiVersion": "networking.k8s.io/v1",
         "kind": "Ingress",
         "metadata": {
             "annotations": {
-                "alb.ingress.kubernetes.io/target-type": "ip"
+                "alb.ingress.kubernetes.io/target-type": "ip",
+                "alb.ingress.kubernetes.io/load-balancer-name": f'{synth[1]["metadata"]["name"]}-alb',
+                "alb.ingress.kubernetes.io/load-balancer-attributes": f"access_logs.s3.enabled=true,access_logs.s3.bucket={LOGS_BUCKET}",
+                "alb.ingress.kubernetes.io/certificate-arn": MOCK_ACM_ARN,
+                "alb.ingress.kubernetes.io/listen-ports": '[{"HTTPS":443}, {"HTTP":80}]',
+                "alb.ingress.kubernetes.io/ssl-policy": "ELBSecurityPolicy-TLS-1-2-Ext-2018-06",
+                "alb.ingress.kubernetes.io/ssl-redirect": '443'
+            },
+            "name": "my-test-ingress"
+        },
+        "spec": {
+            "rules": [
+                {
+                    "http": {
+                        "paths": [
+                            {
+                                "backend": {
+                                    "service": {
+                                        "name": chart.service.name,
+                                        "port": {
+                                            "number": chart.service.port
+                                        }
+                                    }
+                                },
+                                "path": "/",
+                                "pathType": "Prefix"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+    assert ingress_synth == expected_ingress
+
+def test_ingress_http():
+    synth = cdk8s.Testing.synth(
+        AppChart(
+            app,
+            "cdk8s-test-2",
+            namespace = NAMESPACE,
+            alb_access_logs_bucket_name = LOGS_BUCKET
+        )
+    )
+    ingress_synth = synth[2]
+    expected_ingress = {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+            "annotations": {
+                "alb.ingress.kubernetes.io/target-type": "ip",
+                "alb.ingress.kubernetes.io/load-balancer-name": f'{synth[1]["metadata"]["name"]}-alb',
+                "alb.ingress.kubernetes.io/load-balancer-attributes": f"access_logs.s3.enabled=true,access_logs.s3.bucket={LOGS_BUCKET}",
             },
             "name": "my-test-ingress"
         },

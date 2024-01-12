@@ -5,8 +5,10 @@ from infrastructure.cluster_stack import KubernetesClusterStack
 
 REGION = "us-east-1"
 ACCOUNT = str(random.randint(111111111111, 999999999999))
-K8S_VERSION = "1.27"
+K8S_VERSION = "1.28"
 APP_NAME = "cdk8s-samples"
+HOSTED_ZONE_ID = "mock-zone-id"''
+RECORD_NAME = "cdk8s-samples.mydomain.com"
 
 context_mock = {
     "region": REGION,
@@ -32,7 +34,12 @@ stack = KubernetesClusterStack(
         region=REGION
     ),
     admin_users=[],
-    admin_roles=app.node.try_get_context("adminRoles")
+    admin_roles=app.node.try_get_context("adminRoles"),
+    elb_account_id = str(random.randint(111111111111, 999999999999)),
+    certificate = "mock-acm-id",
+    hosted_zone_id = HOSTED_ZONE_ID,
+    hosted_zone_name = "mydomain.com",
+    record_name = RECORD_NAME
 )
 
 template = Template.from_stack(stack)
@@ -89,8 +96,22 @@ def test_eks_cluster():
                             ]
                         }
                     ],
-                    "endpointPublicAccess": True,
+                    "endpointPublicAccess": False,
                     "endpointPrivateAccess": True
+                },
+                "logging": {
+                    "clusterLogging": [
+                        {
+                            "enabled": True,
+                            "types": [
+                                "api",
+                                "audit",
+                                "authenticator",
+                                "controllerManager",
+                                "scheduler"
+                            ]
+                        }
+                    ]
                 }
             },
             "AssumeRoleArn": {
@@ -158,5 +179,24 @@ def test_eks_cluster():
                     }
                 ]
             }
+        }
+    )
+
+def test_r53():
+    template.has_resource_properties(
+        "AWS::Route53::RecordSet",
+        {
+            "HostedZoneId": HOSTED_ZONE_ID,
+            "Name": f"{RECORD_NAME}.",
+            "ResourceRecords": [
+                {
+                    "Fn::GetAtt": [
+                        Match.any_value(),
+                        "Value"
+                    ]
+                }
+            ],
+            "TTL": "1800",
+            "Type": "CNAME"
         }
     )

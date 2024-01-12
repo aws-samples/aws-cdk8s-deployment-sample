@@ -20,7 +20,7 @@ from cdk8s_plus_27 import (
 )
 
 class AppChart(Chart):
-    def __init__(self, scope: Construct, id: str, namespace: str):
+    def __init__(self, scope: Construct, id: str, namespace: str, alb_access_logs_bucket_name: str, certificate: str = None):
         super().__init__(scope, id)
 
         self.service_target_port = 8080
@@ -62,17 +62,31 @@ class AppChart(Chart):
             ],
             service_type = ServiceType.NODE_PORT
         )
+
+        alb_annotations = {
+            # Create Target Group with ip targets to work with Fargate
+            "alb.ingress.kubernetes.io/target-type": "ip",
+            # Set ALB name
+            "alb.ingress.kubernetes.io/load-balancer-name": f"{self.service.name}-alb",
+            # Enable ALB Access Logs
+            "alb.ingress.kubernetes.io/load-balancer-attributes": f"access_logs.s3.enabled=true,access_logs.s3.bucket={alb_access_logs_bucket_name}"
+        }
+
+        if certificate is not None:
+            # Enable TLS 1.2 and HTTPS
+            alb_annotations["alb.ingress.kubernetes.io/certificate-arn"]= certificate
+            alb_annotations["alb.ingress.kubernetes.io/listen-ports"]= '[{"HTTPS":443}, {"HTTP":80}]'
+            alb_annotations["alb.ingress.kubernetes.io/ssl-policy"] = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
+            alb_annotations["alb.ingress.kubernetes.io/ssl-redirect"] = '443'
+
         # K8s ingress
         self.ingress = Ingress(
             self,
             "AppALBIngress",
             metadata = ApiObjectMetadata(
                 name = "my-test-ingress",
-                annotations = {
-                    # Create Target Group with ip targets to work with Fargate
-                    "alb.ingress.kubernetes.io/target-type": "ip"
-                }
+                annotations = alb_annotations
             )
         )
-        # Route traffic to the service
+        ## Route traffic to the service
         self.ingress.add_rule("/", IngressBackend.from_service(self.service))

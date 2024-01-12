@@ -17,7 +17,18 @@ from cdk_nag import NagSuppressions
 from .deploy_stage import DeployStage
 
 class PipelineStack(Stack):
-    def __init__(self, scope: Construct, id: str, app_name: str, **kwargs):
+    def __init__(
+            self,
+            scope: Construct,
+            id: str,
+            app_name: str,
+            elb_account_id: str,
+            certificate: str,
+            hosted_zone_id: str,
+            hosted_zone_name: str,
+            record_name: str,
+            **kwargs
+        ):
         super().__init__(scope, id, **kwargs)
 
         repository = Repository.from_repository_arn(
@@ -83,6 +94,23 @@ class PipelineStack(Stack):
             })
         )
 
+        env_vars = {
+            "ACCOUNT" : self.account,
+            "REGION": self.region,
+            "ELB_ACCOUNT_ID": elb_account_id,
+        }
+
+        if hosted_zone_name is not None:
+            env_vars["HOSTED_ZONE_ID"] = hosted_zone_id
+
+        if hosted_zone_name is not None:
+            env_vars["HOSTED_ZONE_NAME"] = hosted_zone_name
+
+        if record_name is not None:
+            env_vars["RECORD_NAME"] = record_name
+
+        if certificate is not None:
+            env_vars["CERTIFICATE"] = certificate
         pipeline = CodePipeline(
             self,
             "Pipeline",
@@ -91,10 +119,7 @@ class PipelineStack(Stack):
             synth = ShellStep(
                 "Synth",
                 input = source_stage,
-                env = {
-                    "ACCOUNT" : self.account,
-                    "REGION": self.region
-                },
+                env = env_vars,
                 install_commands = cdk_install_commands,
                 commands = [
                     "cdk synth"
@@ -147,8 +172,13 @@ class PipelineStack(Stack):
         pipeline.add_stage(
             DeployStage(
                 self,
-                'QA',
-                app_name = app_name
+                'DEV',
+                app_name = app_name,
+                elb_account_id = elb_account_id,
+                certificate = certificate,
+                hosted_zone_id =  hosted_zone_id,
+                hosted_zone_name = hosted_zone_name,
+                record_name = record_name
             ),
             pre = [
                 safety_step,
