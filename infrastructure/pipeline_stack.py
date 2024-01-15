@@ -37,10 +37,8 @@ class PipelineStack(Stack):
             f'arn:aws:codecommit:{self.region}:{self.account}:{app_name}'
         )
 
-        cdk_install_commands =  ["npm install -g aws-cdk",
-            "python3 -m venv .env",
-            "chmod +x .env/bin/activate",
-            ". .env/bin/activate",
+        cdk_install_commands =  [
+            "npm install -g aws-cdk",
             "pip3 install -r requirements.txt",
             "pip3 install -r requirements-dev.txt"
         ]
@@ -63,7 +61,7 @@ class PipelineStack(Stack):
             project_name = f"{app_name}-pipeline-linter",
             install_commands = cdk_install_commands,
             commands = [
-                "find . -name '*.py' ! -path './.env/*' ! -path './cdk.out/*' ! -path './node_modules/*' | xargs pylint"
+                "find . -name '*.py' ! -path './cdk.out/*' ! -path './node_modules/*' | xargs pylint"
             ]
         )
 

@@ -187,7 +187,7 @@ cdk8s-samples-pipeline-stack: destroying... [1/1]
 Then, delete the resources stack:
 
 ```
-aws cloudformation delete-stack —stack-name DEV-cdk8s-samples-app-stack —region $REGION
+aws cloudformation delete-stack --stack-name DEV-cdk8s-samples-app-stack --region $REGION
 ```
 
 You can wait until the stack deletion with this command:
