@@ -5,9 +5,16 @@ This is a sample repository of how to create an Amazon EKS cluster with a k8s de
 ![Architecture Diagram](/assets/architercture_diagram.png)
 
 ## Pre-requisites
+
+### Mandatory
 * [Python](https://www.python.org/downloads/)
 * [AWS CDK Toolkit](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html#getting_started_install)
 
+### Optional
+If you want to enable the HTTPS with TLS listener in the ALB, you will need:
+
+* One Amazon Route53 Hosted Zone
+* One certificate in AWS Certificate Manager
 
 ## Install
 
@@ -42,11 +49,7 @@ This way you will be able to see the resources from EKS console.
 
 First you will need to bootstrap your desired AWS region. Then you will need to create an AWS CodeCommit repository and put the code inside.
 
-You can accomplish this by running the following commands:
-
-```
-chmod +x init_environment.sh
-```
+First, set the environment variables:
 ```
 export ACCOUNT=your-account-id
 ```
@@ -54,9 +57,33 @@ export ACCOUNT=your-account-id
 export REGION=desired-aws-region
 ```
 ```
+export ELB_ACCOUNT_ID=elb-account-id
+```
+To get this value, check this [link](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/enable-access-logging.html#attach-bucket-policy) to get it based on the target region of your deployment.
+
+If you want to enable the HTTPS listener in the ALB (Best Practice and reommended):
+```
+export CERTIFICATE=acm-certificate-arn
+```
+```
+export HOSTED_ZONE_ID=hosted-zone-id
+```
+```
+export HOSTED_ZONE_NAME=hosted-zone-name
+```
+```
+export RECORD_NAME=my-record.$HOSTED_ZONE
+```
+The values of `CERTIFICATE`, `HOSTED_ZONE_ID` and `HOSTED_ZONE_NAME` need to be replaced using an existing AWS ACM certificate and an existing Amazon Route53 hosted zone. The value of `RECORD_NAME` is the record name that you want to create inside the hosted zone.
+
+Then, create the repository:
+```
+chmod +x init_environment.sh
+```
+```
 ./init_environment.sh
 ```
-NOTE: replace the ACCOUNT variable value with your account id and the REGION with the desired AWS region.
+NOTE: replace the `ACCOUNT` variable value with your account id and the `REGION` with the desired AWS region.
 
 Finally, run the deploy command:
 
@@ -160,13 +187,13 @@ cdk8s-samples-pipeline-stack: destroying... [1/1]
 Then, delete the resources stack:
 
 ```
-aws cloudformation delete-stack —stack-name QA-cdk8s-samples-app-stack —region $REGION
+aws cloudformation delete-stack —stack-name DEV-cdk8s-samples-app-stack —region $REGION
 ```
 
 You can wait until the stack deletion with this command:
 
 ```
-aws cloudformation wait stack-delete-complete --stack-name QA-cdk8s-samples-app-stack --region $REGION
+aws cloudformation wait stack-delete-complete --stack-name DEV-cdk8s-samples-app-stack --region $REGION
 ```
 
 Finally, run this command to delete the CodeCommit repository:
