@@ -201,7 +201,7 @@ class PipelineStack(Stack):
             ]
         )
 
-        for subpath in ["Assets/FileRole","UpdatePipeline/SelfMutation/Role", "Pipeline/Role","Pipeline/Build/Synth/CdkBuildProject/Role", "Pipeline/Source/cdk8s-samples/CodePipelineActionRole"]:
+        for subpath in ["Assets/FileRole","UpdatePipeline/SelfMutation/Role", "Pipeline/Role","Pipeline/Build/Synth/CdkBuildProject/Role", "Pipeline/Source/Github_Source/CodePipelineActionRole"]:
             NagSuppressions.add_resource_suppressions_by_path(
                 self,
                 f"/cdk8s-samples-pipeline-stack/Pipeline/{subpath}/DefaultPolicy/Resource",
