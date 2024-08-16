@@ -95,6 +95,9 @@ class PipelineStack(Stack):
             "ACCOUNT" : self.account,
             "REGION": self.region,
             "ELB_ACCOUNT_ID": elb_account_id,
+            "CONNECTION_ARN": connection_arn,
+            "REPO_BRANCH": repo_branch,
+            "REPO_STRING": repo_string
         }
 
         if hosted_zone_name is not None:
