@@ -8,6 +8,9 @@ from infrastructure.pipeline_stack import PipelineStack
 account = os.environ.get('ACCOUNT', None)
 region = os.environ.get('REGION', None)
 elb_account_id = os.environ.get('ELB_ACCOUNT_ID')
+repo_string = os.environ.get('REPO_STRING', 'owner/repo')
+repo_branch = os.environ.get('REPO_BRANCH', 'main')
+connection_arn = os.environ.get('CONNECTION_ARN')
 hosted_zone_id = os.environ.get('HOSTED_ZONE_ID', None)
 hosted_zone_name = os.environ.get('HOSTED_ZONE_NAME', None)
 record_name = os.environ.get('RECORD_NAME', None)
@@ -27,7 +30,10 @@ pipeline_stack= PipelineStack(
     certificate = certificate,
     hosted_zone_id =  hosted_zone_id,
     hosted_zone_name = hosted_zone_name,
-    record_name = record_name
+    record_name = record_name,
+    repo_string = repo_string,
+    repo_branch = repo_branch,
+    connection_arn = connection_arn
 )
 
 Aspects.of(app).add(AwsSolutionsChecks(verbose=True))

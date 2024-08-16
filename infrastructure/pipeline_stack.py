@@ -27,15 +27,12 @@ class PipelineStack(Stack):
             hosted_zone_id: str,
             hosted_zone_name: str,
             record_name: str,
+            repo_string: str,
+            repo_branch: str,
+            connection_arn: str,
             **kwargs
         ):
         super().__init__(scope, id, **kwargs)
-
-        repository = Repository.from_repository_arn(
-            self,
-            "CodeCommitRepo",
-            f'arn:aws:codecommit:{self.region}:{self.account}:{app_name}'
-        )
 
         cdk_install_commands =  [
             "npm install -g aws-cdk",
@@ -43,9 +40,11 @@ class PipelineStack(Stack):
             "pip3 install -r requirements-dev.txt"
         ]
 
-        source_stage = CodePipelineSource.code_commit(
-            repository,
-            "main",
+        source_stage = CodePipelineSource.connection(
+            repo_string = repo_string,
+            branch = repo_branch,
+            connection_arn = connection_arn,
+            action_name = "Github_Source",
             code_build_clone_output = True
         )
 
