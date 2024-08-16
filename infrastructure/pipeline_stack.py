@@ -28,8 +28,8 @@ class PipelineStack(Stack):
             hosted_zone_name: str,
             record_name: str,
             repo_string: str,
-            repo_branch: str,
             connection_arn: str,
+            repo_branch: str,
             **kwargs
         ):
         super().__init__(scope, id, **kwargs)
