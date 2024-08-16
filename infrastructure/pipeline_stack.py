@@ -1,6 +1,5 @@
 from constructs import Construct
 from aws_cdk import Stack
-from aws_cdk.aws_codecommit import Repository
 from aws_cdk.pipelines import (
     CodePipeline,
     CodePipelineSource,
